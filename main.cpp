@@ -12,11 +12,12 @@ using tigl::Vertex;
 
 GLFWwindow* window;
 ObjModel* model;
+ObjModel* cubeModel;
 
 void init();
 void update();
 void draw();
-float rotation = 0;
+float rotation = 1.57;
 float x = 1;
 
 int main(void)
@@ -56,23 +57,27 @@ void init()
     {
         if (key == GLFW_KEY_ESCAPE)
             glfwSetWindowShouldClose(window, true);
-        if (key == GLFW_KEY_D)
-            rotation += 0.1f;
         if (key == GLFW_KEY_A)
-            rotation -= 0.1f;
-        if (key == GLFW_KEY_W)
-            x += 1;
-        if (key == GLFW_KEY_S)
+            rotation = 2.356;
+        if (key == GLFW_KEY_D)
+            rotation = 0.785;
+        if (key == GLFW_KEY_W) {
             x -= 1;
+            rotation = 1.57;
+        }
+        if (key == GLFW_KEY_S) {
+            x += 1;
+            rotation = 4.71;
+        }
     });
 
 
     model = new ObjModel("models/steve/steve.obj");
+    cubeModel = new ObjModel("models/Grass/Grass_Block.obj");
 }
 
 void update()
 {
-    rotation += 1;
 }
 
 void draw()
@@ -85,14 +90,19 @@ void draw()
     glm::mat4 projection = glm::perspective(glm::radians(75.0f), viewport[2] / (float)viewport[3], 0.01f, 500.0f);
     tigl::shader->setProjectionMatrix(projection);
 
+    //Camera
     glm::vec3 targetPos = glm::vec3(0, 5, x);          
     glm::vec3 cameraOffset = glm::vec3(0, 2, 10);      
     glm::vec3 cameraPos = targetPos + cameraOffset;    
     tigl::shader->setViewMatrix(glm::lookAt(cameraPos, targetPos, glm::vec3(0, 1, 0)));
 
-    glm::mat4 cubeModel = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)); 
-    tigl::shader->setModelMatrix(cubeModel);
-
+    //Minecraft block
+    glm::mat4 cubeModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(10, 0, 0)); 
+    cubeModelMatrix = glm::scale(cubeModelMatrix, glm::vec3(2, 2, 2));
+    tigl::shader->setModelMatrix(cubeModelMatrix);
+    cubeModel->draw();
+    
+    //Player
     glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0,x));
     modelMatrix = glm::rotate(modelMatrix, rotation, glm::vec3(0, 1, 0));
     tigl::shader->setModelMatrix(modelMatrix);
