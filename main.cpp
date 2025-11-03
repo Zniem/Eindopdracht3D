@@ -1,3 +1,4 @@
+#pragma region "Includes and stuff"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "tigl.h"
@@ -11,6 +12,7 @@ using tigl::Vertex;
 #pragma comment(lib, "glfw3.lib")
 #pragma comment(lib, "glew32s.lib")
 #pragma comment(lib, "opengl32.lib")
+#pragma endregion
 
 GLFWwindow* window;
 ObjModel* model;
@@ -22,12 +24,12 @@ Camera camera;
 void init();
 void update();
 void draw();
+
+//variables
 float rotation = camera.cameraYaw;
 float x = 0;
 float y = 0;
 float speed = 0.25f;
-//float targetRotation = rotation;
-
 
 int main(void)
 {
@@ -83,24 +85,34 @@ void init()
 
 void update()
 {
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        y += 0.1;
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        
-    }
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-       
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        
-    }
-    /*float lerpspeed = 0.1f;
-    float delta = targetRotation - rotation;
-    while (delta > glm::pi<float>()) delta -= glm::two_pi<float>();
-    while (delta < -glm::pi<float>()) delta += glm::two_pi<float>();
+    glm::vec3 forward;
+    forward.x = sin(camera.cameraYaw);
+    forward.y = 0.0f;
+    forward.z = -cos(camera.cameraYaw);
 
-    rotation += delta * lerpspeed;*/
+    glm::vec3 right;
+    right.x = cos(camera.cameraYaw);
+    right.y = 0.0f;
+    right.z = sin(camera.cameraYaw);
+    glm::vec3 moveDir(0.0f);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        moveDir -= forward;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        moveDir += forward;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        moveDir -= right;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        moveDir += right;
+
+    // Normalize to prevent faster diagonal movement
+    if (glm::length(moveDir) > 0.0f)
+        moveDir = glm::normalize(moveDir);
+
+    // Apply speed and update position
+    x += moveDir.z * speed; // notice: z corresponds to your "x" world axis
+    y += moveDir.x * speed; // and x corresponds to your "y" world axis
+
     rotation = -camera.cameraYaw - 1.57;
 }
 
