@@ -4,6 +4,8 @@
 #include "ObjModel.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include "Ground.h"
+#include "Camera.h"
 using tigl::Vertex;
 
 #pragma comment(lib, "glfw3.lib")
@@ -14,18 +16,19 @@ GLFWwindow* window;
 ObjModel* model;
 ObjModel* cubeModel;
 
+Ground ground;
+Camera camera;
+
 void init();
 void update();
 void draw();
-float rotation = 1.57;
+float rotation = camera.cameraYaw;
 float x = 0;
 float y = 0;
 float speed = 0.25f;
-float targetRotation = rotation;
-float cameraYaw = 0.0f;   // Horizontal angle (Y axis)
-float cameraPitch = 0.0f; // Vertical angle (X axis)
-double lastMouseX = 700, lastMouseY = 400; // Start at window center
-bool firstMouse = true;
+//float targetRotation = rotation;
+
+
 int main(void)
 {
     if (!glfwInit())
@@ -42,15 +45,15 @@ int main(void)
 
     init();
 
-	while (!glfwWindowShouldClose(window))
-	{
-		update();
-		draw();
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
+    while (!glfwWindowShouldClose(window))
+    {
+        update();
+        draw();
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
 
-	glfwTerminate();
+    glfwTerminate();
 
 
     return 0;
@@ -59,108 +62,79 @@ int main(void)
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    if (firstMouse)
-    {
-        lastMouseX = xpos;
-        lastMouseY = ypos;
-        firstMouse = false;
-    }
-
-    float sensitivity = 0.005f; // Adjust for feel
-    float xoffset = float(xpos - lastMouseX) * sensitivity;
-    float yoffset = float(lastMouseY - ypos) * sensitivity; // Reversed: y ranges bottom to top
-
-    lastMouseX = xpos;
-    lastMouseY = ypos;
-
-    cameraYaw   += xoffset;
-    cameraPitch += yoffset;
-
-    // Clamp pitch to avoid flipping
-    if (cameraPitch > glm::radians(89.0f))  cameraPitch = glm::radians(89.0f);
-    if (cameraPitch < glm::radians(-89.0f)) cameraPitch = glm::radians(-89.0f);
+    camera.CameraMouseCallback(xpos,ypos);
 }
 void init()
 {
     glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-    {
-        if (key == GLFW_KEY_ESCAPE)
-            glfwSetWindowShouldClose(window, true);
-        
-    });
+        {
+            if (key == GLFW_KEY_ESCAPE)
+                glfwSetWindowShouldClose(window, true);
+
+        });
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Hide and grab cursor
 
     model = new ObjModel("models/steve/steve.obj");
     cubeModel = new ObjModel("models/Grass/Grass_Block.obj");
+    ground = Ground();
+    camera = Camera();
 }
 
 void update()
 {
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        y -= speed;
-        targetRotation = 3.141;
+        y += 0.1;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        y += speed;
-        targetRotation = 0.0;
+        
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        x -= speed;
-        targetRotation = 1.57;
+       
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        x += speed;
-        targetRotation = 4.71;
+        
     }
-    float lerpspeed = 0.1f;
+    /*float lerpspeed = 0.1f;
     float delta = targetRotation - rotation;
     while (delta > glm::pi<float>()) delta -= glm::two_pi<float>();
     while (delta < -glm::pi<float>()) delta += glm::two_pi<float>();
 
-    rotation += delta * lerpspeed;
+    rotation += delta * lerpspeed;*/
+    rotation = -camera.cameraYaw - 1.57;
 }
 
 void draw()
 {
+    //background color
     glClearColor(0.3f, 0.4f, 0.6f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    //set viewport and perspective
     int viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
     glm::mat4 projection = glm::perspective(glm::radians(75.0f), viewport[2] / (float)viewport[3], 0.01f, 500.0f);
     tigl::shader->setProjectionMatrix(projection);
 
-    //Camera
-    glm::vec3 targetPos = glm::vec3(y, 5, x);
+    //setting camera
+    tigl::shader->setViewMatrix(camera.DrawCamera(y,x));
 
-    float camDistance = 10.0f;
-    float camHeight = 2.0f;
-
-    // Calculate direction from yaw and pitch
-    glm::vec3 direction;
-    direction.x = sin(cameraYaw) * cos(cameraPitch);
-    direction.y = sin(cameraPitch);
-    direction.z = -cos(cameraYaw) * cos(cameraPitch);
-
-    glm::vec3 cameraPos = targetPos + glm::vec3(0, camHeight, 0) + direction * camDistance;
-    tigl::shader->setViewMatrix(glm::lookAt(cameraPos, targetPos + glm::vec3(0, camHeight, 0), glm::vec3(0, 1, 0)));
-
-    //Minecraft block
+    //Minecraft blocks
     for (int i = 0; i < 10; i++)
     {
         for (int j = 0; j < 10; j++)
         {
-            glm::mat4 cubeModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(i * 4, -4, j * 4));
-            cubeModelMatrix = glm::scale(cubeModelMatrix, glm::vec3(2, 2, 2));
+            glm::mat4 cubeModelMatrix = ground.Cubetranslate(glm::mat4(1.0), i * 4, 1, j * 4);
+            cubeModelMatrix = ground.CubeScale(cubeModelMatrix,2,2,2);
             tigl::shader->setModelMatrix(cubeModelMatrix);
-            cubeModel->draw();
+            ground.DrawCube(cubeModel);
+
         }
     }
-    
-    
+
+
     //Player
-    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(y, 0,x));
+    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(y, 0, x));
     modelMatrix = glm::rotate(modelMatrix, rotation, glm::vec3(0, 1, 0));
     tigl::shader->setModelMatrix(modelMatrix);
     model->draw();
