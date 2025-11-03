@@ -2,12 +2,12 @@
 
 
 
-glm::mat4 Camera::DrawCamera(float y, float x) {
+glm::mat4 Camera::DrawCamera(float y, float x, float z) {
     //Camera
-    glm::vec3 targetPos = glm::vec3(y, 5, x);
+    glm::vec3 targetPos = glm::vec3(y, z, x);
 
-    float camDistance = 10.0f;
-    float camHeight = 2.0f;
+    float camDistance = 20.0f;
+    float camHeight = 4.0f;
 
     // Calculate direction from yaw and pitch
     glm::vec3 direction;

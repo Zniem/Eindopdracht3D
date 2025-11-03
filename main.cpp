@@ -29,7 +29,11 @@ void draw();
 float rotation = camera.cameraYaw;
 float x = 0;
 float y = 0;
-float speed = 0.25f;
+float z = 0;
+float speed = 50.0f;
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 int main(void)
 {
@@ -85,15 +89,19 @@ void init()
 
 void update()
 {
+    float currentframe = glfwGetTime();
+    deltaTime = currentframe - lastFrame;
+    lastFrame = currentframe;
+
     glm::vec3 forward;
     forward.x = sin(camera.cameraYaw);
     forward.y = 0.0f;
     forward.z = -cos(camera.cameraYaw);
 
-    glm::vec3 right;
-    right.x = cos(camera.cameraYaw);
-    right.y = 0.0f;
-    right.z = sin(camera.cameraYaw);
+    glm::vec3 sideways;
+    sideways.x = cos(camera.cameraYaw);
+    sideways.y = 0.0f;
+    sideways.z = sin(camera.cameraYaw);
     glm::vec3 moveDir(0.0f);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -101,17 +109,21 @@ void update()
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         moveDir += forward;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        moveDir -= right;
+        moveDir += sideways;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        moveDir += right;
+        moveDir -= sideways;
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        z -= 20 * deltaTime;
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        z += 20 * deltaTime;
 
     // Normalize to prevent faster diagonal movement
     if (glm::length(moveDir) > 0.0f)
         moveDir = glm::normalize(moveDir);
 
     // Apply speed and update position
-    x += moveDir.z * speed; // notice: z corresponds to your "x" world axis
-    y += moveDir.x * speed; // and x corresponds to your "y" world axis
+    x += moveDir.z * speed * deltaTime; // notice: z corresponds to your "x" world axis
+    y += moveDir.x * speed * deltaTime; // and x corresponds to your "y" world axis
 
     rotation = -camera.cameraYaw - 1.57;
 }
@@ -129,7 +141,7 @@ void draw()
     tigl::shader->setProjectionMatrix(projection);
 
     //setting camera
-    tigl::shader->setViewMatrix(camera.DrawCamera(y,x));
+    tigl::shader->setViewMatrix(camera.DrawCamera(y,x,z));
 
     //Minecraft blocks
     for (int i = 0; i < 10; i++)
@@ -146,7 +158,7 @@ void draw()
 
 
     //Player
-    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(y, 0, x));
+    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(y, z, x));
     modelMatrix = glm::rotate(modelMatrix, rotation, glm::vec3(0, 1, 0));
     tigl::shader->setModelMatrix(modelMatrix);
     model->draw();
