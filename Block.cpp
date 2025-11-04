@@ -1,4 +1,5 @@
 #include "Block.h"
+#include "tigl.h"
 using tigl::Vertex;
 
 void Block::DrawCube(float x, float y, float z, float size) {
