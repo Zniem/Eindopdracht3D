@@ -1,7 +1,9 @@
 #include "GameObject.h"
 #include "ObjModel.h"
+#include "tigl.h"
 
-void GameObject::DrawObject(ObjModel* model) {
+void GameObject::DrawObject(ObjModel* model, glm::mat4 modelMatrix) {
+	tigl::shader->setModelMatrix(modelMatrix);
 	model->draw();
 }
 glm::mat4 GameObject::TranslateObject(glm::mat4 matrix, float x, float y, float z) {

@@ -8,6 +8,7 @@
 #include "Block.h"
 #include "Camera.h"
 #include "Player.h"
+#include "Input.h"
 using tigl::Vertex;
 
 #pragma comment(lib, "glfw3.lib")
@@ -18,16 +19,17 @@ GLFWwindow* window;
 ObjModel* playerModel;
 ObjModel* cubeModel;
 
-Camera camera;
+Camera* camera = new Camera();
 Block block;
 Player player;
+Input input;
 
 void init();
 void update();
 void draw();
 
 //variables
-float rotation = camera.cameraYaw;
+float rotation = camera->cameraYaw;
 float x = 0;
 float y = 0;
 float z = 0;
@@ -65,20 +67,11 @@ void Game::Run() {
 }
 void init()
 {
-    glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-        if (key == GLFW_KEY_ESCAPE)
-            glfwSetWindowShouldClose(window, true);
-        });
-
-    glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
-        camera.CameraMouseCallback(xpos, ypos);
-        });
-
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Hide and grab cursor
-
+    input.KeyCallback(window);
+    input.MouseCallback(window, camera);
+    
     playerModel = new ObjModel("models/steve/steve.obj");
     cubeModel = new ObjModel("models/Grass/Grass_Block.obj");
-    camera = Camera();
     block = Block();
     player = Player();
 
@@ -99,14 +92,14 @@ void update()
     }
 
     glm::vec3 forward;
-    forward.x = sin(camera.cameraYaw);
+    forward.x = sin(camera->cameraYaw);
     forward.y = 0.0f;
-    forward.z = -cos(camera.cameraYaw);
+    forward.z = -cos(camera->cameraYaw);
 
     glm::vec3 sideways;
-    sideways.x = cos(camera.cameraYaw);
+    sideways.x = cos(camera->cameraYaw);
     sideways.y = 0.0f;
-    sideways.z = sin(camera.cameraYaw);
+    sideways.z = sin(camera->cameraYaw);
     glm::vec3 moveDir(0.0f);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -130,7 +123,7 @@ void update()
     x += moveDir.z * speed * deltaTime; // notice: z corresponds to your "x" world axis
     y += moveDir.x * speed * deltaTime; // and x corresponds to your "y" world axis
 
-    rotation = -camera.cameraYaw - 1.57;
+    rotation = -camera->cameraYaw - 1.57;
 }
 
 void draw()
@@ -147,7 +140,7 @@ void draw()
 
 
     //setting camera
-    tigl::shader->setViewMatrix(camera.DrawCamera(y, x, z));
+    tigl::shader->setViewMatrix(camera->DrawCamera(y, x, z));
 
 
     for (int i = 0; i < 10; i++) {
@@ -155,16 +148,14 @@ void draw()
             glm::mat4 cubeModelMatrix = glm::mat4(1.0f);
             cubeModelMatrix = block.TranslateObject(cubeModelMatrix, j * 4, 0, i * 4);
             cubeModelMatrix = block.ScaleObject(cubeModelMatrix, 2, 2, 2);
-            tigl::shader->setModelMatrix(cubeModelMatrix);
-            block.DrawObject(cubeModel);
+            block.DrawObject(cubeModel, cubeModelMatrix);
         }
     }
 
     //Player
     glm::mat4 playerModelMatrix = player.TranslateObject(glm::mat4(1.0f), y, z, x);
     playerModelMatrix = player.RotateObject(playerModelMatrix, rotation, 0, 1, 0);
-    tigl::shader->setModelMatrix(playerModelMatrix);
-    player.DrawObject(playerModel);
+    player.DrawObject(playerModel, playerModelMatrix);
 
     glEnable(GL_DEPTH_TEST);
     glPointSize(10.0f);
