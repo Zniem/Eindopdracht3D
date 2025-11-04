@@ -6,9 +6,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 void Ground::DrawCube(ObjModel* model) {
-    
-    
-    
     model->draw();
 }
 

@@ -1,7 +1,8 @@
 #pragma once
 #include "GameObject.h"
-class Player : public GameObject
+class Block: public GameObject
 {
-	
+
+
 };
 
