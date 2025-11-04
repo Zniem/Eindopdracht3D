@@ -2,7 +2,11 @@
 #include "ObjModel.h"
 #include "tigl.h"
 
-void GameObject::DrawObject(ObjModel* model, glm::mat4 modelMatrix) {
+void GameObject::DrawObject(ObjModel* model, glm::vec3 translate, float rotation, glm::vec3 scale) {
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	modelMatrix = TranslateObject(modelMatrix, translate.x, translate.y, translate.z);
+	modelMatrix = RotateObject(modelMatrix, rotation, 0,1,0);
+	modelMatrix = ScaleObject(modelMatrix, scale.x, scale.y, scale.z);
 	tigl::shader->setModelMatrix(modelMatrix);
 	model->draw();
 }

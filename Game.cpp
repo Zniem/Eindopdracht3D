@@ -142,20 +142,15 @@ void draw()
     //setting camera
     tigl::shader->setViewMatrix(camera->DrawCamera(y, x, z));
 
-
+    //blocks
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
-            glm::mat4 cubeModelMatrix = glm::mat4(1.0f);
-            cubeModelMatrix = block.TranslateObject(cubeModelMatrix, j * 4, 0, i * 4);
-            cubeModelMatrix = block.ScaleObject(cubeModelMatrix, 2, 2, 2);
-            block.DrawObject(cubeModel, cubeModelMatrix);
+            block.DrawObject(cubeModel, glm::vec3(i * 4, 0, j * 4), 0, glm::vec3(2,2,2));
         }
     }
 
     //Player
-    glm::mat4 playerModelMatrix = player.TranslateObject(glm::mat4(1.0f), y, z, x);
-    playerModelMatrix = player.RotateObject(playerModelMatrix, rotation, 0, 1, 0);
-    player.DrawObject(playerModel, playerModelMatrix);
+    player.DrawObject(playerModel, glm::vec3(y,z,x), rotation, glm::vec3(1,1,1));
 
     glEnable(GL_DEPTH_TEST);
     glPointSize(10.0f);
