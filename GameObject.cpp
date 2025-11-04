@@ -1,4 +1,5 @@
 #include "GameObject.h"
+#include "ObjModel.h"
 
 void GameObject::DrawObject(ObjModel* model) {
 	model->draw();

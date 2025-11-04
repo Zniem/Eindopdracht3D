@@ -1,7 +1,5 @@
 #include "Camera.h"
 
-
-
 glm::mat4 Camera::DrawCamera(float y, float x, float z) {
     //Camera
     glm::vec3 targetPos = glm::vec3(y, z, x);

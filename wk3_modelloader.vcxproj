@@ -162,7 +162,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjModel.cpp" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="TerrainGeneration.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="tigl.cpp" />
   </ItemGroup>
@@ -173,7 +172,6 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="ObjModel.h" />
-    <ClInclude Include="TerrainGeneration.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="tigl.h" />
   </ItemGroup>
