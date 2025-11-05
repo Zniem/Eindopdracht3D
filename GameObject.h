@@ -4,19 +4,20 @@
 class GameObject
 {
 private:
-	ObjModel* pModel;
-	glm::vec3 playerTranslate;
+	ObjModel* objectModel;
+	glm::vec3 objectTranslate;
+	glm::vec3 objectScale;
+	float objectRotation;
 public:
 	GameObject();
-	GameObject(ObjModel* model, glm::vec3 translate);
+	GameObject(ObjModel* model, glm::vec3 translate,float rotation, glm::vec3 scale);
 	~GameObject();
 
-	void SetTranslate(glm::vec3 translate);
+	void DrawObject() const;
 
-	void DrawObject(float rotation, glm::vec3 scale);
-	glm::mat4 TranslateObject(glm::mat4 matrix, float x, float y, float z);
-	glm::mat4 ScaleObject(glm::mat4 matrix, float x, float y, float z);
-	glm::mat4 RotateObject(glm::mat4 matrix,float rotation, float x, float y, float z);
+	void SetTranslate(glm::vec3 translate);
+	void SetRotation(float rotation);
+	void SetScale(glm::vec3 scale);
 
 };
 
