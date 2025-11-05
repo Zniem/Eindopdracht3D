@@ -5,9 +5,7 @@
 #include "ObjModel.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include "Block.h"
 #include "Camera.h"
-#include "Player.h"
 #include "Input.h"
 using tigl::Vertex;
 

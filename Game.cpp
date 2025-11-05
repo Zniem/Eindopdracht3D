@@ -5,11 +5,11 @@
 #include "ObjModel.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include "Block.h"
 #include "Camera.h"
-#include "Player.h"
 #include "Input.h"
 #include "Timer.h"
+#include "GameObject.h"
+
 using tigl::Vertex;
 
 #pragma comment(lib, "glfw3.lib")
@@ -21,8 +21,8 @@ ObjModel* playerModel;
 ObjModel* cubeModel;
 
 Camera* camera = new Camera();
-Block block;
-Player player;
+GameObject block;
+GameObject player;
 Input input;
 Timer timer;
 
@@ -71,8 +71,8 @@ void init()
     
     playerModel = new ObjModel("models/steve/steve.obj");
     cubeModel = new ObjModel("models/Grass/Grass_Block.obj");
-    block = Block();
-    player = Player(playerModel, x,y,z);
+    block = GameObject(cubeModel, glm::vec3(0,0,0));
+    player = GameObject(playerModel, glm::vec3(x,y,z));
     timer = Timer();
 
 }
@@ -115,12 +115,14 @@ void draw()
     camera->DrawCamera(y, x, z);
 
     //Player
-    player.DrawObject(playerModel, glm::vec3(y, z, x), rotation, glm::vec3(1, 1, 1));
+    player.SetTranslate(glm::vec3(y, z, x));
+    player.DrawObject(rotation, glm::vec3(1, 1, 1));
 
     //blocks
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
-            block.DrawObject(cubeModel, glm::vec3(i * 4, 0, j * 4), 0, glm::vec3(2,2,2));
+            block.DrawObject(0, glm::vec3(2,2,2));
+            //block.DrawObject(cubeModel, glm::vec3(i * 4, 0, j * 4), 0, glm::vec3(2,2,2));
         }
     }
 
