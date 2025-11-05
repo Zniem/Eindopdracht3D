@@ -17,18 +17,21 @@ void Input::MouseCallback(GLFWwindow* window, Camera* camera ) {
 		});
 }
 
-void Input::HandleKeyboardInput(GLFWwindow* window, glm::vec3& forward, glm::vec3& sideways, glm::vec3& moveDir, float deltaTime, float& z) {
+glm::vec2 Input::HandleKeyboardInput(GLFWwindow* window) {
+
+    glm::vec2 direction(0.0f);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        moveDir -= forward;
+        direction.y -= 1.0f;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        moveDir += forward;
+        direction.y += 1.0f;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        moveDir += sideways;
+        direction.x += 1.0f;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        moveDir -= sideways;
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        direction.x -= 1.0f;
+    /*if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         z -= 20 * deltaTime;
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        z += 20 * deltaTime;
+        z += 20 * deltaTime;*/
+    return direction;
 }
 

@@ -81,18 +81,12 @@ void update()
 {
     timer.CalculateDeltaTimeAndGettingFps();
 
-    glm::vec3 forward;
-    forward.x = sin(camera->cameraYaw);
-    forward.y = 0.0f;
-    forward.z = -cos(camera->cameraYaw);
-
-    glm::vec3 sideways;
-    sideways.x = cos(camera->cameraYaw);
-    sideways.y = 0.0f;
-    sideways.z = sin(camera->cameraYaw);
-    glm::vec3 moveDir(0.0f);
-
-    input.HandleKeyboardInput(window, forward, sideways, moveDir, timer.GetDeltaTime(), z);
+    glm::vec3 forward(sin(camera->cameraYaw),0.0f, -cos(camera->cameraYaw));
+    glm::vec3 sideways(cos(camera->cameraYaw),0.0f, sin(camera->cameraYaw));
+    
+    glm::vec2 direction = input.HandleKeyboardInput(window);
+    
+    glm::vec3 moveDir = forward * direction.y + sideways * direction.x;
 
     // Normalize to prevent faster diagonal movement
     if (glm::length(moveDir) > 0.0f)
