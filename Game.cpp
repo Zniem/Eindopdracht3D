@@ -9,6 +9,7 @@
 #include "Input.h"
 #include "Timer.h"
 #include "GameObject.h"
+#include "Player.h"
 
 using tigl::Vertex;
 
@@ -17,25 +18,20 @@ using tigl::Vertex;
 #pragma comment(lib, "opengl32.lib")
 
 GLFWwindow* window;
-ObjModel* playerModel;
+
 ObjModel* cubeModel;
 
-Camera* camera = new Camera();
 GameObject block;
-GameObject player;
 Input input;
 Timer timer;
+Player player;
 
 void init();
 void update();
 void draw();
 
 //variables
-float rotation = camera->cameraYaw;
-float x = 0;
-float y = 0;
-float z = 0;
-float speed = 50.0f;
+
 
 
 
@@ -64,39 +60,23 @@ void Game::Run() {
 
     glfwTerminate();
 }
-void init()
-{
-    input.KeyCallback(window);
-    input.MouseCallback(window, camera);
-    
-    playerModel = new ObjModel("models/steve/steve.obj");
+void init(){
+    player = Player();
+    timer = Timer();
+
     cubeModel = new ObjModel("models/Grass/Grass_Block.obj");
     block = GameObject(cubeModel, glm::vec3(0,0,0), 0, glm::vec3(2,2,2));
-    player = GameObject(playerModel, glm::vec3(x,y,z), rotation, glm::vec3(1,1,1));
-    timer = Timer();
+
+    input.KeyCallback(window);
+    input.MouseCallback(window, player.GetCamera());
+    
 
 }
 
 void update()
 {
     timer.CalculateDeltaTimeAndGettingFps();
-
-    glm::vec3 forward(sin(camera->cameraYaw),0.0f, -cos(camera->cameraYaw));
-    glm::vec3 sideways(cos(camera->cameraYaw),0.0f, sin(camera->cameraYaw));
-    
-    glm::vec2 direction = input.HandleKeyboardInput(window);
-    
-    glm::vec3 moveDir = forward * direction.y + sideways * direction.x;
-
-    // Normalize to prevent faster diagonal movement
-    if (glm::length(moveDir) > 0.0f)
-        moveDir = glm::normalize(moveDir);
-
-    // Apply speed and update position
-    x += moveDir.z * speed * timer.GetDeltaTime(); // notice: z corresponds to your "x" world axis
-    y += moveDir.x * speed * timer.GetDeltaTime(); // and x corresponds to your "y" world axis
-
-    rotation = -camera->cameraYaw - 1.57;
+    player.UpdatePlayer(input, window, timer);
 }
 
 void draw()
@@ -105,20 +85,11 @@ void draw()
     glClearColor(0.3f, 0.4f, 0.6f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //camera
-    camera->DrawCamera(y, x, z);
-
     //Player
-    player.SetTranslate(glm::vec3(y, z, x));
-    player.SetRotation(rotation);
-    player.DrawObject();
-
-    //blocks
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
-            block.DrawObject();
-        }
-    }
+    player.DrawPlayer();
+   
+    //block
+    block.DrawObject();
 
     glEnable(GL_DEPTH_TEST);
     glPointSize(10.0f);
