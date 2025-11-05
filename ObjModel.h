@@ -55,6 +55,7 @@ private:
 public:
 	ObjModel(const std::string &filename);
 	~ObjModel(void);
+	ObjModel();
 
 	void draw();
 };

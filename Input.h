@@ -19,6 +19,6 @@ class Input
 public:
 	void KeyCallback(GLFWwindow* window);
 	void MouseCallback(GLFWwindow* window, Camera* camera);
-	void HandleKeyboardInput();
+	void HandleKeyboardInput(GLFWwindow* window, glm::vec3& forward, glm::vec3& sideways, glm::vec3& moveDir, float deltaTime, float& z);
 };
 

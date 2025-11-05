@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Player.h"
 #include "Input.h"
+#include "Timer.h"
 using tigl::Vertex;
 
 #pragma comment(lib, "glfw3.lib")
@@ -23,6 +24,7 @@ Camera* camera = new Camera();
 Block block;
 Player player;
 Input input;
+Timer timer;
 
 void init();
 void update();
@@ -35,10 +37,7 @@ float y = 0;
 float z = 0;
 float speed = 50.0f;
 
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
 
-float delayTimer = 0.0f;
 
 void Game::Run() {
     if (!glfwInit())
@@ -73,23 +72,14 @@ void init()
     playerModel = new ObjModel("models/steve/steve.obj");
     cubeModel = new ObjModel("models/Grass/Grass_Block.obj");
     block = Block();
-    player = Player();
+    player = Player(playerModel, x,y,z);
+    timer = Timer();
 
 }
 
 void update()
 {
-    float currentframe = glfwGetTime();
-    deltaTime = currentframe - lastFrame;
-    lastFrame = currentframe;
-
-
-    delayTimer += deltaTime;
-    if (delayTimer > 1.0f) {
-        int fps = 1 / deltaTime;
-        std::cout << "fps: " << fps << std::endl;
-        delayTimer = 0.0f;
-    }
+    timer.CalculateDeltaTimeAndGettingFps();
 
     glm::vec3 forward;
     forward.x = sin(camera->cameraYaw);
@@ -102,26 +92,15 @@ void update()
     sideways.z = sin(camera->cameraYaw);
     glm::vec3 moveDir(0.0f);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        moveDir -= forward;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        moveDir += forward;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        moveDir += sideways;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        moveDir -= sideways;
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        z -= 20 * deltaTime;
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        z += 20 * deltaTime;
+    input.HandleKeyboardInput(window, forward, sideways, moveDir, timer.GetDeltaTime(), z);
 
     // Normalize to prevent faster diagonal movement
     if (glm::length(moveDir) > 0.0f)
         moveDir = glm::normalize(moveDir);
 
     // Apply speed and update position
-    x += moveDir.z * speed * deltaTime; // notice: z corresponds to your "x" world axis
-    y += moveDir.x * speed * deltaTime; // and x corresponds to your "y" world axis
+    x += moveDir.z * speed * timer.GetDeltaTime(); // notice: z corresponds to your "x" world axis
+    y += moveDir.x * speed * timer.GetDeltaTime(); // and x corresponds to your "y" world axis
 
     rotation = -camera->cameraYaw - 1.57;
 }
@@ -132,15 +111,11 @@ void draw()
     glClearColor(0.3f, 0.4f, 0.6f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //set viewport and perspective
-    int viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-    glm::mat4 projection = glm::perspective(glm::radians(75.0f), viewport[2] / (float)viewport[3], 0.01f, 500.0f);
-    tigl::shader->setProjectionMatrix(projection);
+    //camera
+    camera->DrawCamera(y, x, z);
 
-
-    //setting camera
-    tigl::shader->setViewMatrix(camera->DrawCamera(y, x, z));
+    //Player
+    player.DrawObject(playerModel, glm::vec3(y, z, x), rotation, glm::vec3(1, 1, 1));
 
     //blocks
     for (int i = 0; i < 10; i++) {
@@ -148,9 +123,6 @@ void draw()
             block.DrawObject(cubeModel, glm::vec3(i * 4, 0, j * 4), 0, glm::vec3(2,2,2));
         }
     }
-
-    //Player
-    player.DrawObject(playerModel, glm::vec3(y,z,x), rotation, glm::vec3(1,1,1));
 
     glEnable(GL_DEPTH_TEST);
     glPointSize(10.0f);

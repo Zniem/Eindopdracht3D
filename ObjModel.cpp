@@ -76,7 +76,9 @@ static inline std::string cleanLine(std::string line)
 
 
 
+ObjModel::ObjModel() {
 
+}
 /**
 * Loads an object model
 */

@@ -11,7 +11,7 @@ public:
 
 	Camera();
 	~Camera();
-	glm::mat4 DrawCamera(float y, float x, float z);
+	void DrawCamera(float y, float x, float z);
 	void CameraMouseCallback(double xpos, double ypos);
 	};
 
