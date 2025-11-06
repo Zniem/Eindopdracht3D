@@ -1,27 +1,10 @@
 #include "Camera.h"
 #include "tigl.h"
+#include <iostream>
 
-void Camera::DrawCamera(float y, float x, float z) {
-    //Camera
-    int viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-    glm::mat4 projection = glm::perspective(glm::radians(75.0f), viewport[2] / (float)viewport[3], 0.01f, 500.0f);
-    tigl::shader->setProjectionMatrix(projection);
-
-    
-    glm::vec3 targetPos = glm::vec3(y, z, x);
-
-    float camDistance = 20.0f;
-    float camHeight = 4.0f;
-
-    // Calculate direction from yaw and pitch
-    glm::vec3 direction;
-    direction.x = sin(Camera::cameraYaw) * cos(Camera::cameraPitch);
-    direction.y = sin(Camera::cameraPitch);
-    direction.z = -cos(Camera::cameraYaw) * cos(Camera::cameraPitch);
-
-    glm::vec3 cameraPos = targetPos + glm::vec3(0, camHeight, 0) + direction * camDistance;
-    tigl::shader->setViewMatrix(glm::lookAt(cameraPos, targetPos + glm::vec3(0, camHeight, 0), glm::vec3(0, 1, 0)));
+void Camera::DrawCamera(glm::vec3 cameraPostion) {
+    UpdateProjectionMatrix();
+    tigl::shader->setViewMatrix(UpdateViewMatrix(cameraPostion));
 
 }
 void Camera::CameraMouseCallback(double xpos, double ypos) {
@@ -48,5 +31,26 @@ void Camera::CameraMouseCallback(double xpos, double ypos) {
     if (cameraPitch > glm::radians(89.0f))  cameraPitch = glm::radians(89.0f);
     if (cameraPitch < glm::radians(-89.0f)) cameraPitch = glm::radians(-89.0f);
 }
-Camera::Camera() {}
+
+void Camera::UpdateProjectionMatrix() {
+    int viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    glm::mat4 projection = glm::perspective(glm::radians(75.0f), viewport[2] / (float)viewport[3], 0.01f, 500.0f);
+    tigl::shader->setProjectionMatrix(projection);
+
+}
+glm::mat4 Camera::UpdateViewMatrix(glm::vec3 cameraPostion) {
+    // Calculate direction from yaw and pitch
+    glm::vec3 direction;
+    direction.x = sin(Camera::cameraYaw) * cos(Camera::cameraPitch);
+    direction.y = sin(Camera::cameraPitch);
+    direction.z = -cos(Camera::cameraYaw) * cos(Camera::cameraPitch);
+
+    glm::vec3 cameraPos = cameraPostion + glm::vec3(0, Camera::camHeight, 0) + direction * Camera::camDistance;
+    
+    return glm::lookAt(cameraPos, cameraPostion + glm::vec3(0, Camera::camHeight, 0), glm::vec3(0, 1, 0));
+}
+
+Camera::Camera() {
+}
 Camera::~Camera() {}
