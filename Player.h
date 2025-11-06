@@ -7,7 +7,7 @@
 class Player : public GameObject
 {
 private:
-	GameObject player;
+	GameObject player;	
 	Camera* camera;
 	ObjModel* playerModel;
 	float rotation = 0;

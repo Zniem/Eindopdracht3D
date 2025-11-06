@@ -2,10 +2,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "tigl.h"
-#include "ObjModel.h"
-#include <glm/gtc/matrix_transform.hpp>
-#include <iostream>
-#include "Camera.h"
 #include "Input.h"
 #include "Timer.h"
 #include "GameObject.h"
@@ -18,9 +14,7 @@ using tigl::Vertex;
 #pragma comment(lib, "opengl32.lib")
 
 GLFWwindow* window;
-
 ObjModel* cubeModel;
-
 GameObject block;
 Input input;
 Timer timer;
@@ -29,11 +23,6 @@ Player player;
 void init();
 void update();
 void draw();
-
-//variables
-
-
-
 
 void Game::Run() {
     if (!glfwInit())
@@ -69,8 +58,7 @@ void init(){
 
     input.KeyCallback(window);
     input.MouseCallback(window, player.GetCamera());
-    
-
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void update()

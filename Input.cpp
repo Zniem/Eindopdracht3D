@@ -15,6 +15,7 @@ void Input::MouseCallback(GLFWwindow* window, Camera* camera ) {
 		Camera* cam = static_cast<Camera*>(glfwGetWindowUserPointer(window));
 		cam->CameraMouseCallback(xpos, ypos);
 		});
+   
 }
 
 glm::vec2 Input::HandleKeyboardInput(GLFWwindow* window) {
